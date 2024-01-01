@@ -1,0 +1,159 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <windows.h>
+
+using namespace std;
+
+//Сбор информации о кол. появления буквы в тексте
+void stats(string text, string OrText, double* arr) {
+
+	int t = text.length();
+	int OrT = OrText.length();
+
+	for (int i = 0; i < t; i++){
+
+		arr[i] = 0;
+
+		for (int j = 0; j < OrT; j++){
+			if (text[i] == OrText[j]){
+
+				arr[i] += 1;
+			}
+		}
+	}
+}
+
+//Нахождение частоты буквы в тексте
+void freq(string text, string& forArr, double* arr, int& o, int& OrT) {
+
+	int t = text.length();
+
+	for (int i = 0; i < t; i++){
+		if (arr[i] != 0) {
+
+			arr[o] = (arr[i] / OrT) * 100;
+
+			forArr += text[i];
+
+			o++;
+		}
+	}
+}
+
+//Сортировка пузырьком букв, от наибоее часто встречаемых
+void reloc(double* arr, string& forArr, int& o) {
+	for (int i = 0; i < o - 1; i++) {
+		for (int j = 0; j < o - i - 1; j++) {
+			if (arr[j] < arr[j + 1]) {
+
+				int temp = arr[j];
+
+				char y = forArr[j];
+
+				arr[j] = arr[j + 1];
+
+				forArr[j] = forArr[j + 1];
+
+				arr[j + 1] = temp;
+
+				forArr[j + 1] = y;
+			}
+		}
+	}
+}
+
+int main(){
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+
+	string text{ "1234567890.,;:!?-()'@#$%^&*_<>|\\" };
+
+	string OpenText, CloseText, EndText, forArrOt, forArrCt;
+
+	cout << "Введите открытый текст: ";
+	getline(cin, OpenText);
+
+	cout << "Введите зашифрованный текст: ";
+	getline(cin, CloseText);
+
+	int t = text.length();
+	int Ot = OpenText.length();
+	int Ct = CloseText.length();
+
+	double* arrOt = new double[t];
+	double* arrCt = new double[t];
+
+	stats(text, OpenText, arrOt);
+
+	int o = 0;
+
+	freq(text, forArrOt, arrOt, o, Ot);
+
+	reloc(arrOt, forArrOt, o);
+
+	cout << "Самая частая буква откр. текста: " << forArrOt[0] << " - " << arrOt[0] << endl;
+
+	stats(text, CloseText, arrCt);
+
+	int p = 0;
+
+	freq(text, forArrCt, arrCt, p, Ct);
+
+	reloc(arrCt, forArrCt, p);
+
+	cout << "Самая частая буква закр. текста: " << forArrCt[0] << " - " << arrCt[0] << endl;
+
+	int const SIZE = 5;
+
+	int k[SIZE];
+
+	for (int i = 0; i < SIZE; i++){
+
+		int NumCt = text.find(forArrCt[0]);
+
+		int NumOt = text.find(forArrOt[i]);
+
+		k[i] = NumCt - NumOt;
+	}
+
+	bool end = 1;
+
+	int q = 0;
+
+	while (end && q < SIZE){
+
+		EndText = "";
+
+		for (int i = 0; i < Ct; i++){
+			for (int j = 0; j < t; j++){
+				if (CloseText[i] == text[j]) {
+
+					int n = (j - k[q]);
+
+					double y = n % t;
+
+					y = y >= 0 ? y : y + t;
+
+					EndText += text[y];
+
+					break;
+				}
+			}
+		}
+
+		cout << "Расшифровка: " << EndText << endl;
+
+		cout << "\nВведите 0 если расшифровка правильная, 1 если не правильная: ";
+
+		cin >> end;
+
+		q++;
+	}
+
+	delete[] arrOt;
+
+	delete[] arrCt;
+
+	return 0;
+}
